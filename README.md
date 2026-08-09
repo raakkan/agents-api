@@ -1,19 +1,31 @@
 # 🤖 agents-api
 
-> **High-Performance, Self-Hosted Web Scraping, Search & Screenshot REST API for AI Agents**
+> **High-Performance, 100% Self-Hostable Web Scraping, Search & Screenshot REST API Engine for AI Agents**
 
-`agents-api` is an open-source, Firecrawl & Tavily-compatible REST API engine designed for AI agents (Claude Code, Cursor, Windsurf, LangChain, LlamaIndex, AutoGen). Built with **TypeScript**, **Playwright**, **LightPanda CDP**, **SearXNG**, and **Browserless Stealth**.
+`agents-api` is a **100% self-hostable**, open-source, Firecrawl & Tavily-compatible REST API engine designed for AI agents (Claude Code, Cursor, Windsurf, LangChain, LlamaIndex, AutoGen). Built with **TypeScript**, **Playwright**, **LightPanda CDP**, **SearXNG**, and **Browserless Stealth**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)](https://www.docker.com/)
-[![Code Style](https://img.shields.io/badge/Security-SSRF%20Protected-brightgreen)](#-security--hardening)
+[![Self-Hostable](https://img.shields.io/badge/Deploy-Coolify%20%7C%20VPS%20%7C%20Docker-orange)](#-coolify--vps-deployment-guide)
+[![Security](https://img.shields.io/badge/Security-SSRF%20Protected-brightgreen)](#-security--hardening)
+
+---
+
+## 🌟 Why Self-Hostable?
+
+Unlike proprietary cloud scraping services with per-request fees, bandwidth limits, and third-party data tracking:
+
+- 🔒 **100% Data Privacy**: Your scraped data, queries, and credentials stay entirely on your own infrastructure.
+- ⚡ **Zero Per-Request Costs**: Host on a low-cost VPS (Coolify, Hetzner, DigitalOcean, AWS) and run unlimited requests.
+- 🛠️ **Full Control & Customizable**: Spin up in 5 minutes via Docker Compose with zero external cloud dependencies.
+- 🔑 **Flexible Authentication**: Run in open self-hosted mode or secure with your own Bearer API keys.
 
 ---
 
 ## ✨ Features
 
-- 🔍 **Meta-Search (`POST /v1/search`)**: Aggregates search results from **Google, Bing, DuckDuckGo** simultaneously via built-in SearXNG — no API keys required.
+- 🔍 **Meta-Search (`POST /v1/search`)**: Aggregates search results from **Google, Bing, DuckDuckGo** simultaneously via built-in SearXNG — no paid API keys required.
 - 📄 **Web Scraping (`POST /v1/scrape`)**: Convert any webpage into clean **Markdown**, **HTML**, **Text**, **Links**, or **Screenshots** using LightPanda CDP (10x faster than full Chrome).
 - 📸 **Full-Page Screenshots (`POST /v1/screenshot`)**: Capture full-page, high-resolution PNG/JPEG screenshots of complex SPAs and bot-protected sites using anti-fingerprint Chrome Stealth.
 - 🕸️ **Async BFS Crawler (`POST /v1/crawl` & `GET /v1/crawl/:id`)**: Asynchronously crawl entire domains, track progress, and poll results.
@@ -47,7 +59,7 @@
 
 ---
 
-## 🚀 Quick Start (Docker Compose)
+## 🚀 Self-Host Setup (Docker Compose)
 
 ### 1. Clone the repository
 ```bash
@@ -59,7 +71,7 @@ cd agents-api
 ```bash
 cp .env.example .env
 ```
-> **Note:** By default, `API_KEY` is empty for self-hosted mode (no authentication needed). Set `API_KEY=your_secret_key` in `.env` to enable Bearer token protection.
+> **Note:** By default, `API_KEY` is empty for open self-hosted mode (no authentication needed). Set `API_KEY=your_secret_key` in `.env` to enable Bearer token protection.
 
 ### 3. Start all 5 services
 ```bash
@@ -164,9 +176,9 @@ curl -s http://localhost:3000/v1/crawl/$JOB_ID -H "Authorization: Bearer $API_KE
 
 ---
 
-## 🚀 Coolify Deployment Guide
+## 🚀 Coolify / VPS Deployment Guide
 
-`agents-api` is 100% compatible with [Coolify](https://coolify.io).
+`agents-api` is 100% self-hostable on [Coolify](https://coolify.io) or any Linux VPS.
 
 1. In Coolify, create a **New Resource** ➔ **Public/Private Git Repository**.
 2. Connect your repo `https://github.com/raakkan/agents-api.git`.
