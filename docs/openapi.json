@@ -1,0 +1,190 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agent-api",
+    "version": "1.0.0",
+    "description": "Open-source web scraper, crawler & screenshot API"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local API Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "System health status"
+          }
+        }
+      }
+    },
+    "/v1/scrape": {
+      "post": {
+        "summary": "Scrape a webpage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "format": { "type": "string", "default": "markdown" },
+                  "profile": { "type": "string", "default": "fast" },
+                  "waitFor": { "type": "number", "default": 0 }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scraped content"
+          }
+        }
+      }
+    },
+    "/v1/screenshot": {
+      "post": {
+        "summary": "Take a screenshot",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "fullPage": { "type": "boolean", "default": true },
+                  "darkMode": { "type": "boolean", "default": false },
+                  "mobile": { "type": "boolean", "default": false },
+                  "width": { "type": "number", "default": 1920 },
+                  "height": { "type": "number", "default": 1080 }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Base64 image"
+          }
+        }
+      }
+    },
+    "/v1/crawl": {
+      "post": {
+        "summary": "Start a crawl job",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "maxPages": { "type": "number", "default": 10 },
+                  "format": { "type": "string", "default": "markdown" }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Job started"
+          }
+        }
+      }
+    },
+    "/v1/crawl/{jobId}": {
+      "get": {
+        "summary": "Poll crawl job status",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job status and results"
+          }
+        }
+      }
+    },
+    "/v1/map": {
+      "post": {
+        "summary": "Map website structure",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of URLs"
+          }
+        }
+      }
+    },
+    "/v1/search": {
+      "post": {
+        "summary": "Search the web",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": { "type": "string" },
+                  "categories": { "type": "array", "items": { "type": "string" } },
+                  "language": { "type": "string" }
+                },
+                "required": ["query"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    }
+  }
+}

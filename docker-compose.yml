@@ -1,0 +1,62 @@
+name: agent-api
+
+services:
+  api:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - API_KEY=${API_KEY:-}
+      - PORT=3000
+      - SEARXNG_URL=http://searxng:8080
+      - LIGHTPANDA_URL=http://lightpanda:9222
+      - CHROME_URL=http://chrome:3000
+      - STEALTH_URL=http://chrome-stealth:3000
+    depends_on:
+      - searxng
+      - lightpanda
+      - chrome
+      - chrome-stealth
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  searxng:
+    image: searxng/searxng:latest
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  lightpanda:
+    image: lightpanda/browser:nightly
+    expose:
+      - "9222"
+    restart: unless-stopped
+
+  chrome:
+    image: browserless/chrome:latest
+    expose:
+      - "3000"
+    environment:
+      - TOKEN=${API_KEY:-}
+      - CONCURRENT=5
+      - TIMEOUT=30000
+    restart: unless-stopped
+
+  chrome-stealth:
+    image: browserless/chrome:latest
+    expose:
+      - "3000"
+    environment:
+      - TOKEN=${API_KEY:-}
+      - CONCURRENT=3
+      - TIMEOUT=30000
+      - STEALTH=true
+    restart: unless-stopped
