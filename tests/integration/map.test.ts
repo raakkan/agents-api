@@ -1,11 +1,11 @@
 import request from 'supertest';
 import app from '../../src/index';
+import { getPageWithFallback } from '../../src/utils/browser';
 
 jest.mock('../../src/utils/browser', () => ({
+  getPageWithFallback: jest.fn(),
   getPage: jest.fn()
 }));
-
-import { getPage } from '../../src/utils/browser';
 
 describe('Map API Endpoint', () => {
   beforeEach(() => {
@@ -27,22 +27,28 @@ describe('Map API Endpoint', () => {
         'https://example.com/',
         'https://example.com/about',
         'https://example.com/contact'
-      ]),
+      ])
+    };
+    const mockBrowser = {
       close: jest.fn().mockResolvedValue(null)
     };
     
-    (getPage as jest.Mock).mockResolvedValue(mockPage);
+    (getPageWithFallback as jest.Mock).mockResolvedValue({
+      page: mockPage,
+      browser: mockBrowser
+    });
 
     const response = await request(app)
       .post('/v1/map')
       .send({ url: 'https://example.com' });
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('links');
-    expect(response.body.links).toHaveLength(3);
-    expect(response.body.links).toContain('https://example.com/about');
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveProperty('links');
+    expect(response.body.data.links).toHaveLength(3);
+    expect(response.body.data.links).toContain('https://example.com/about');
     
-    expect(getPage).toHaveBeenCalled();
+    expect(getPageWithFallback).toHaveBeenCalled();
     expect(mockPage.goto).toHaveBeenCalledWith('https://example.com', expect.any(Object));
   });
 });

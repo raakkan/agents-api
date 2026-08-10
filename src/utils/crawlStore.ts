@@ -24,3 +24,6 @@ class CrawlStore {
 }
 
 export const crawlStore = new CrawlStore();
+export const createJob = (job: CrawlJob) => crawlStore.create(job);
+export const getJob = (id: string) => crawlStore.get(id);
+

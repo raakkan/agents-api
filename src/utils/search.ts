@@ -14,7 +14,12 @@ export interface SearchResult {
   category?: string;
 }
 
-export async function searchSearXNG(query: string, limit: number, lang: string, categories: string[]): Promise<SearchResult[]> {
+export async function searchSearXNG(
+  query: string,
+  limit: number = 5,
+  lang: string = 'en',
+  categories: string[] = ['general']
+): Promise<SearchResult[]> {
   try {
     const searchUrl = new URL(`${env.SEARXNG_URL}/search`);
     searchUrl.searchParams.append('q', query);
@@ -33,3 +38,6 @@ export async function searchSearXNG(query: string, limit: number, lang: string, 
     throw new ApiError(500, 'Search failed', { error: error.message });
   }
 }
+
+export const search = searchSearXNG;
+

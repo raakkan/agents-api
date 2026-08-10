@@ -2,7 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { validate } from '../middleware/validate';
 import { ScreenshotSchema, ScreenshotRequest } from '../types';
 import { getPageWithFallback } from '../utils/browser';
-
+import { HumanizeUtils } from '../utils/humanize';
+import { CaptchaSolver } from '../utils/captcha';
 import { validateSafeUrl } from '../utils/ssrf';
 
 const router = Router();
@@ -13,12 +14,22 @@ router.post('/', validate(ScreenshotSchema), async (req: Request, res: Response,
 
   try {
     const targetUrl = validateSafeUrl(body.url);
-    const { page, browser } = await getPageWithFallback('fast');
+    const { page, browser } = await getPageWithFallback({
+      profile: 'fast',
+      proxy: body.proxy,
+      viewport: { width: body.width, height: body.height }
+    });
     browserInstance = browser;
 
-    await page.setViewportSize({ width: body.width, height: body.height });
-    
     await page.goto(targetUrl, { timeout: body.timeout, waitUntil: 'domcontentloaded' });
+
+    if (body.humanize) {
+      await HumanizeUtils.applyHumanBehavior(page);
+    }
+
+    if (body.solveCaptcha) {
+      await CaptchaSolver.detectAndSolve(page, { solver: body.captchaSolver });
+    }
 
     if (body.waitFor) {
       if (typeof body.waitFor === 'number') {

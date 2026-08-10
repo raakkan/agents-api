@@ -49,6 +49,11 @@ app.use(express.static(path.join(__dirname, '../docs')));
 // Central error handler
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
-  console.log(`🚀 Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
-});
+if (env.NODE_ENV !== 'test') {
+  app.listen(env.PORT, () => {
+    console.log(`🚀 Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+  });
+}
+
+export default app;
+

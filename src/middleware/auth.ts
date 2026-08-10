@@ -4,8 +4,9 @@ import { env } from '../config/env';
 import { ApiError } from './errorHandler';
 
 export const auth = (req: Request, _res: Response, next: NextFunction) => {
+  const apiKey = process.env.API_KEY || env.API_KEY;
   // If API_KEY is not set, API runs in self-hosted open mode
-  if (!env.API_KEY) {
+  if (!apiKey) {
     return next();
   }
 
@@ -21,7 +22,7 @@ export const auth = (req: Request, _res: Response, next: NextFunction) => {
 
   // Timing-safe equal comparison to prevent side-channel timing attacks
   const tokenBuffer = Buffer.from(token);
-  const expectedBuffer = Buffer.from(env.API_KEY);
+  const expectedBuffer = Buffer.from(apiKey);
 
   if (
     tokenBuffer.length !== expectedBuffer.length ||
@@ -32,3 +33,6 @@ export const auth = (req: Request, _res: Response, next: NextFunction) => {
 
   next();
 };
+
+export const authMiddleware = auth;
+

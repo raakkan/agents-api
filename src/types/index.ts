@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const AntiBotOptionsSchema = z.object({
+  proxy: z.string().optional(),
+  proxyCountry: z.string().optional(),
+  humanize: z.boolean().default(false),
+  solveCaptcha: z.boolean().default(false),
+  captchaSolver: z.enum(['capsolver', '2captcha', 'anticaptcha']).optional(),
+});
+
 export const ScrapeSchema = z.object({
   url: z.string().url(),
   formats: z.array(z.enum(['markdown', 'html', 'text', 'links', 'screenshot'])).default(['markdown']),
@@ -7,8 +15,8 @@ export const ScrapeSchema = z.object({
   selector: z.string().optional(),
   mobile: z.boolean().default(false),
   profile: z.enum(['fast', 'heavy', 'stealth']).default('fast'),
-  timeout: z.number().default(30000)
-});
+  timeout: z.number().default(30000),
+}).merge(AntiBotOptionsSchema);
 export type ScrapeRequest = z.infer<typeof ScrapeSchema>;
 
 export const ScreenshotSchema = z.object({
@@ -21,23 +29,23 @@ export const ScreenshotSchema = z.object({
   darkMode: z.boolean().default(false),
   mobile: z.boolean().default(false),
   waitFor: z.union([z.number(), z.string()]).optional(),
-  timeout: z.number().default(30000)
-});
+  timeout: z.number().default(30000),
+}).merge(AntiBotOptionsSchema);
 export type ScreenshotRequest = z.infer<typeof ScreenshotSchema>;
 
 export const CrawlSchema = z.object({
   url: z.string().url(),
   maxPages: z.number().min(1).max(100).default(10),
   formats: z.array(z.enum(['markdown', 'html', 'text'])).default(['markdown']),
-  timeout: z.number().default(30000)
-});
+  timeout: z.number().default(30000),
+}).merge(AntiBotOptionsSchema);
 export type CrawlRequest = z.infer<typeof CrawlSchema>;
 
 export const MapSchema = z.object({
   url: z.string().url(),
   limit: z.number().min(1).max(500).default(50),
-  timeout: z.number().default(30000)
-});
+  timeout: z.number().default(30000),
+}).merge(AntiBotOptionsSchema);
 export type MapRequest = z.infer<typeof MapSchema>;
 
 export const SearchSchema = z.object({

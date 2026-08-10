@@ -1,8 +1,24 @@
-import { chromium, Browser, Page } from 'playwright';
+import { chromium, Browser, Page, BrowserContext } from 'patchright';
 import { env } from '../config/env';
 import { ApiError } from '../middleware/errorHandler';
+import { proxyManager, PlaywrightProxyConfig } from './proxy';
 
 export type BrowserProfile = 'fast' | 'heavy' | 'stealth';
+
+export interface GetPageOptions {
+  profile?: BrowserProfile;
+  proxy?: string;
+  sessionId?: string;
+  userAgent?: string;
+  viewport?: { width: number; height: number };
+}
+
+const DEFAULT_USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0'
+];
 
 export async function resolveWsEndpoint(profile: BrowserProfile): Promise<string> {
   let baseUrl: string;
@@ -59,22 +75,40 @@ export async function getBrowser(profile: BrowserProfile = 'fast'): Promise<Brow
   }
 }
 
-export async function getPageWithFallback(profile: BrowserProfile = 'fast'): Promise<{ page: Page; browser: Browser }> {
+export async function getPageWithFallback(options: GetPageOptions = {}): Promise<{ page: Page; browser: Browser; context: BrowserContext }> {
+  const profile = options.profile || 'fast';
+
   try {
     const browser = await getBrowser(profile);
+
+    // Resolve proxy configuration
+    let proxyConfig: PlaywrightProxyConfig | undefined;
+    if (options.sessionId) {
+      proxyConfig = proxyManager.getStickyProxy(options.sessionId, options.proxy);
+    } else {
+      proxyConfig = proxyManager.getNextProxy(options.proxy);
+    }
+
+    const randomUa = DEFAULT_USER_AGENTS[Math.floor(Math.random() * DEFAULT_USER_AGENTS.length)];
+    const userAgent = options.userAgent || randomUa;
+    const viewport = options.viewport || { width: 1280, height: 800 };
+
     const context = await browser.newContext({
-      viewport: { width: 1280, height: 800 },
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
-        '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+      viewport,
+      userAgent,
+      ...(proxyConfig ? { proxy: proxyConfig } : {})
     });
+
     const page = await context.newPage();
-    return { page, browser };
+    return { page, browser, context };
   } catch (error) {
     if (profile !== 'heavy') {
       console.warn(`Failed with profile '${profile}', falling back to 'heavy'`);
-      return getPageWithFallback('heavy');
+      return getPageWithFallback({ ...options, profile: 'heavy' });
     }
     throw error;
   }
 }
+
+export const getPage = getPageWithFallback;
+

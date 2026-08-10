@@ -4,7 +4,8 @@ import { validate } from '../middleware/validate';
 import { CrawlSchema, CrawlRequest } from '../types';
 import { crawlStore } from '../utils/crawlStore';
 import { getPageWithFallback } from '../utils/browser';
-
+import { HumanizeUtils } from '../utils/humanize';
+import { CaptchaSolver } from '../utils/captcha';
 import { validateSafeUrl } from '../utils/ssrf';
 
 const router = Router();
@@ -36,53 +37,66 @@ router.post('/', validate(CrawlSchema), async (req: Request, res: Response, next
       let browserInstance;
       try {
         crawlStore.update(jobId, { status: 'running' });
-        const { page, browser } = await getPageWithFallback('heavy');
+        const { page, browser } = await getPageWithFallback({
+          profile: 'heavy',
+          proxy: body.proxy,
+          sessionId: jobId
+        });
         browserInstance = browser;
         
         const visited = new Set<string>();
         const queue = [startUrl];
-      const results: any[] = [];
-      let pagesScraped = 0;
-      
-      while (queue.length > 0 && pagesScraped < body.maxPages) {
-        const currentUrl = queue.shift()!;
-        if (visited.has(currentUrl)) continue;
-        visited.add(currentUrl);
+        const results: any[] = [];
+        let pagesScraped = 0;
+        
+        while (queue.length > 0 && pagesScraped < body.maxPages) {
+          const currentUrl = queue.shift()!;
+          if (visited.has(currentUrl)) continue;
+          visited.add(currentUrl);
 
-        try {
-          await page.goto(currentUrl, { timeout: body.timeout, waitUntil: 'domcontentloaded' });
-          const result: any = { url: currentUrl };
-          
-          if (body.formats.includes('html')) result.html = await page.content();
-          if (body.formats.includes('text')) result.text = await page.innerText('body');
-          
-          results.push(result);
-          pagesScraped++;
-          
-          crawlStore.update(jobId, { pagesScraped, totalPages: queue.length + visited.size, results });
-
-          // Find more links
-          const links = await page.$$eval('a', anchors => anchors.map(a => a.href));
-          for (const link of links) {
-            if (link.startsWith(new URL(startUrl).origin) && !visited.has(link)) {
-              queue.push(link);
+          try {
+            await page.goto(currentUrl, { timeout: body.timeout, waitUntil: 'domcontentloaded' });
+            
+            if (body.humanize) {
+              await HumanizeUtils.applyHumanBehavior(page);
             }
+
+            if (body.solveCaptcha) {
+              await CaptchaSolver.detectAndSolve(page, { solver: body.captchaSolver });
+            }
+
+            const result: any = { url: currentUrl };
+            
+            if (body.formats.includes('html')) result.html = await page.content();
+            if (body.formats.includes('text')) result.text = await page.innerText('body');
+            
+            results.push(result);
+            pagesScraped++;
+            
+            crawlStore.update(jobId, { pagesScraped, totalPages: queue.length + visited.size, results });
+
+            // Find more links
+            const links = await page.$$eval('a', anchors => anchors.map(a => a.href));
+            for (const link of links) {
+              if (link.startsWith(new URL(startUrl).origin) && !visited.has(link)) {
+                queue.push(link);
+              }
+            }
+          } catch (e) {
+            console.error(`Error crawling ${currentUrl}:`, e);
           }
-        } catch (e) {
-          console.error(`Error crawling ${currentUrl}:`, e);
         }
+        
+        crawlStore.update(jobId, { status: 'completed', results, pagesScraped });
+      } catch (error: any) {
+        crawlStore.update(jobId, { status: 'failed', error: error.message });
+      } finally {
+        if (browserInstance) await browserInstance.close();
       }
-      
-      crawlStore.update(jobId, { status: 'completed', results, pagesScraped });
-    } catch (error: any) {
-      crawlStore.update(jobId, { status: 'failed', error: error.message });
-    } finally {
-      if (browserInstance) await browserInstance.close();
-    }
-  })();
-} catch (error) {
-  next(error);
-}
+    })();
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get('/:jobId', (req: Request, res: Response) => {

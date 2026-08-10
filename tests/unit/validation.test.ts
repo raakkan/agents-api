@@ -1,63 +1,74 @@
 import { z } from 'zod';
-import { scrapeSchema, screenshotSchema, crawlSchema, mapSchema, searchSchema } from '../../src/validation';
+import { ScrapeSchema, ScreenshotSchema, CrawlSchema, MapSchema, SearchSchema } from '../../src/types';
 
 describe('Validation Schemas', () => {
-  describe('scrapeSchema', () => {
-    it('should parse valid payload', () => {
-      const payload = { url: 'https://example.com' };
-      const result = scrapeSchema.parse(payload);
+  describe('ScrapeSchema', () => {
+    it('should parse valid payload with anti-bot options', () => {
+      const payload = {
+        url: 'https://example.com',
+        humanize: true,
+        solveCaptcha: true,
+        captchaSolver: 'capsolver',
+        proxy: 'http://usr:pwd@host:8080'
+      };
+      const result = ScrapeSchema.parse(payload);
       expect(result.url).toBe('https://example.com');
+      expect(result.humanize).toBe(true);
+      expect(result.solveCaptcha).toBe(true);
+      expect(result.captchaSolver).toBe('capsolver');
+      expect(result.proxy).toBe('http://usr:pwd@host:8080');
       // Check defaults
       expect(result.formats).toEqual(['markdown']);
     });
 
     it('should throw on missing url', () => {
-      expect(() => scrapeSchema.parse({})).toThrow(z.ZodError);
+      expect(() => ScrapeSchema.parse({})).toThrow(z.ZodError);
     });
 
     it('should throw on invalid url format', () => {
-      expect(() => scrapeSchema.parse({ url: 'not-a-url' })).toThrow(z.ZodError);
+      expect(() => ScrapeSchema.parse({ url: 'not-a-url' })).toThrow(z.ZodError);
     });
   });
 
-  describe('screenshotSchema', () => {
-    it('should parse valid payload', () => {
-      const payload = { url: 'https://example.com' };
-      const result = screenshotSchema.parse(payload);
+  describe('ScreenshotSchema', () => {
+    it('should parse valid payload with anti-bot options', () => {
+      const payload = { url: 'https://example.com', humanize: true };
+      const result = ScreenshotSchema.parse(payload);
       expect(result.url).toBe('https://example.com');
+      expect(result.humanize).toBe(true);
     });
 
     it('should throw on missing url', () => {
-      expect(() => screenshotSchema.parse({})).toThrow(z.ZodError);
+      expect(() => ScreenshotSchema.parse({})).toThrow(z.ZodError);
     });
   });
 
-  describe('crawlSchema', () => {
+  describe('CrawlSchema', () => {
     it('should parse valid payload', () => {
       const payload = { url: 'https://example.com' };
-      const result = crawlSchema.parse(payload);
+      const result = CrawlSchema.parse(payload);
       expect(result.url).toBe('https://example.com');
-      expect(result.limit).toBe(5);
+      expect(result.maxPages).toBe(10);
     });
   });
 
-  describe('mapSchema', () => {
+  describe('MapSchema', () => {
     it('should parse valid payload', () => {
       const payload = { url: 'https://example.com' };
-      const result = mapSchema.parse(payload);
+      const result = MapSchema.parse(payload);
       expect(result.url).toBe('https://example.com');
     });
   });
 
-  describe('searchSchema', () => {
+  describe('SearchSchema', () => {
     it('should parse valid payload', () => {
       const payload = { query: 'test query' };
-      const result = searchSchema.parse(payload);
+      const result = SearchSchema.parse(payload);
       expect(result.query).toBe('test query');
     });
 
     it('should throw on missing query', () => {
-      expect(() => searchSchema.parse({})).toThrow(z.ZodError);
+      expect(() => SearchSchema.parse({})).toThrow(z.ZodError);
     });
   });
 });

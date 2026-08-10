@@ -13,6 +13,11 @@ services:
       - LIGHTPANDA_URL=http://lightpanda:9222
       - CHROME_URL=http://chrome:3000
       - STEALTH_URL=http://chrome-stealth:3000
+      - PROXY_ENABLED=${PROXY_ENABLED:-false}
+      - PROXY_LIST=${PROXY_LIST:-}
+      - PROXY_STICKY_SESSIONS=${PROXY_STICKY_SESSIONS:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-capsolver}
+      - CAPTCHA_API_KEY=${CAPTCHA_API_KEY:-}
     depends_on:
       - searxng
       - lightpanda

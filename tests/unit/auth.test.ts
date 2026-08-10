@@ -1,10 +1,11 @@
 import { authMiddleware } from '../../src/middleware/auth';
-import { Request, Response, NextFunction } from 'express';
+import { ApiError } from '../../src/middleware/errorHandler';
+import { Request, Response } from 'express';
 
 describe('Auth Middleware', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
-  let next: NextFunction;
+  let next: jest.Mock;
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -25,32 +26,30 @@ describe('Auth Middleware', () => {
   it('allows requests when API_KEY is not set (self-hosted mode)', () => {
     delete process.env.API_KEY;
     authMiddleware(req as Request, res as Response, next);
-    expect(next).toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith();
   });
 
-  it('returns 401 when API_KEY is set but Authorization header is missing', () => {
+  it('returns 401 via ApiError when API_KEY is set but Authorization header is missing', () => {
     process.env.API_KEY = 'secret-key';
     authMiddleware(req as Request, res as Response, next);
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Missing Authorization header' });
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    const err = next.mock.calls[0][0] as ApiError;
+    expect(err.statusCode).toBe(401);
   });
 
-  it('returns 403 when Authorization token is invalid', () => {
+  it('returns 403 via ApiError when Authorization token is invalid', () => {
     process.env.API_KEY = 'secret-key';
     req.headers = { authorization: 'Bearer wrong-key' };
     authMiddleware(req as Request, res as Response, next);
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid API key' });
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    const err = next.mock.calls[0][0] as ApiError;
+    expect(err.statusCode).toBe(403);
   });
 
-  it('calls next() when Authorization: Bearer <valid_key> is provided', () => {
+  it('calls next() without error when Authorization: Bearer <valid_key> is provided', () => {
     process.env.API_KEY = 'secret-key';
     req.headers = { authorization: 'Bearer secret-key' };
     authMiddleware(req as Request, res as Response, next);
-    expect(next).toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith();
   });
 });

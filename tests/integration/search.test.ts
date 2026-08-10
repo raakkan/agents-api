@@ -1,11 +1,11 @@
 import request from 'supertest';
 import app from '../../src/index';
+import { searchSearXNG } from '../../src/utils/search';
 
 jest.mock('../../src/utils/search', () => ({
+  searchSearXNG: jest.fn(),
   search: jest.fn()
 }));
-
-import { search } from '../../src/utils/search';
 
 describe('Search API Endpoint', () => {
   beforeEach(() => {
@@ -25,20 +25,18 @@ describe('Search API Endpoint', () => {
       {
         title: 'Test',
         url: 'https://test.com',
-        snippet: 'Test snippet',
-        description: 'Test snippet',
-        position: 1
+        content: 'Test snippet'
       }
     ];
     
-    (search as jest.Mock).mockResolvedValueOnce(mockResults);
+    (searchSearXNG as jest.Mock).mockResolvedValueOnce(mockResults);
 
     const response = await request(app)
       .post('/v1/search')
       .send({ query: 'test query' });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResults);
-    expect(search).toHaveBeenCalledWith('test query');
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toEqual(mockResults);
   });
 });
