@@ -1,10 +1,37 @@
 use_default_settings: true
+
 server:
-  secret_key: "agent-api-searxng-secret"
+  secret_key: "agent-api-searxng-secret-key-change-me"
   bind_address: "0.0.0.0"
   limiter: false
+
 search:
+  safe_search: 0
+  autocomplete: ""
   formats:
     - html
     - json
+
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+    timeout: 3.0
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    timeout: 3.0
+  - name: bing
+    engine: bing
+    shortcut: b
+    timeout: 3.0
+  - name: brave
+    engine: brave
+    shortcut: br
+    timeout: 3.0
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    timeout: 3.0
+
 
