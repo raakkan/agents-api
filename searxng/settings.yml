@@ -2,7 +2,9 @@ use_default_settings: true
 server:
   secret_key: "agent-api-searxng-secret"
   bind_address: "0.0.0.0"
+  limiter: false
 search:
   formats:
     - html
     - json
+
