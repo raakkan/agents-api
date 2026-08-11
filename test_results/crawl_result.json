@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": {
+    "id": "b5f57561-0e55-4405-b645-5b2d41ac34ca",
+    "status": "completed",
+    "url": "https://example.com",
+    "maxPages": 2,
+    "formats": [
+      "markdown"
+    ],
+    "pagesScraped": 1,
+    "totalPages": 1,
+    "results": [
+      {
+        "url": "https://example.com"
+      }
+    ],
+    "createdAt": 1786427338019,
+    "updatedAt": 1786427338732
+  }
+}

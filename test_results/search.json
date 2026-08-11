@@ -1,0 +1,97 @@
+{
+  "success": true,
+  "data": [
+    {
+      "template": "default.html",
+      "title": "Tamil Nadu AI Association (TNAIA) | Shaping India's AI Future",
+      "content": "Shaping the AI Future of Tamilnadu Uniting Government, Industry, Academia, Startups, Researchers and Investors to position Tamil Nadu at the forefront of India's AI revolution — and the global stage.",
+      "img_src": "",
+      "iframe_src": "",
+      "audio_src": "",
+      "thumbnail": "",
+      "publishedDate": null,
+      "pubdate": "",
+      "length": null,
+      "views": "",
+      "author": "",
+      "metadata": "",
+      "priority": "",
+      "engines": [
+        "duckduckgo",
+        "google cse"
+      ],
+      "open_group": false,
+      "close_group": false,
+      "positions": [
+        3,
+        1
+      ],
+      "score": 2.6666666666666665,
+      "category": "general",
+      "url": "https://www.tnaia.in/",
+      "engine": "google cse",
+      "parsed_url": [
+        "https",
+        "www.tnaia.in",
+        "/",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "template": "default.html",
+      "url": "https://indiaai.gov.in/government/government-of-tamil-nadu",
+      "title": "Government of Tamil Nadu",
+      "content": "The Tamil Nadu e-Governance Agency (TNeGA) has developed an AI-based mobile app, known as ePaarwai, to address the resource constraints in screening a large number of people for cataract. By simply clicking a picture, the application can be used for preliminary screening of the eye.",
+      "publishedDate": null,
+      "thumbnail": "",
+      "engine": "brave",
+      "parsed_url": [
+        "https",
+        "indiaai.gov.in",
+        "/government/government-of-tamil-nadu",
+        "",
+        "",
+        ""
+      ],
+      "img_src": "",
+      "priority": "",
+      "engines": [
+        "brave"
+      ],
+      "positions": [
+        1
+      ],
+      "score": 1,
+      "category": "general"
+    },
+    {
+      "template": "default.html",
+      "url": "https://aitamilnadu.org/",
+      "title": "AI Tamil Nadu — Hyperlocal AI Community",
+      "content": "AI Tamil Nadu formely known as AI Coimbatore is a close-Knit community initiative by Navaneeth with a goal to offer world-class AI education to anyone in Tamilnadu for free.",
+      "publishedDate": null,
+      "thumbnail": "",
+      "engine": "brave",
+      "parsed_url": [
+        "https",
+        "aitamilnadu.org",
+        "/",
+        "",
+        "",
+        ""
+      ],
+      "img_src": "",
+      "priority": "",
+      "engines": [
+        "brave"
+      ],
+      "positions": [
+        2
+      ],
+      "score": 0.5,
+      "category": "general"
+    }
+  ]
+}

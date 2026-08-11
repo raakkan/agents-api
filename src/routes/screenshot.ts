@@ -15,7 +15,7 @@ router.post('/', validate(ScreenshotSchema), async (req: Request, res: Response,
   try {
     const targetUrl = validateSafeUrl(body.url);
     const { page, browser } = await getPageWithFallback({
-      profile: 'fast',
+      profile: body.profile || 'heavy',
       proxy: body.proxy,
       viewport: { width: body.width, height: body.height }
     });

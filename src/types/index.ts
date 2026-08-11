@@ -28,6 +28,7 @@ export const ScreenshotSchema = z.object({
   quality: z.number().min(1).max(100).default(90),
   darkMode: z.boolean().default(false),
   mobile: z.boolean().default(false),
+  profile: z.enum(['fast', 'heavy', 'stealth']).default('heavy'),
   waitFor: z.union([z.number(), z.string()]).optional(),
   timeout: z.number().default(30000),
 }).merge(AntiBotOptionsSchema);
