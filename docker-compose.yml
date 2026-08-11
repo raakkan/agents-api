@@ -35,6 +35,8 @@ services:
     image: searxng/searxng:latest
     volumes:
       - ./searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
     expose:
       - "8080"
     restart: unless-stopped

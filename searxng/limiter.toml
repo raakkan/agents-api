@@ -1,8 +1,16 @@
 [real_ip]
-# Disable real IP requirement for internal network calls
 x_for = 0
 
-[botdetection]
-ip_limit = false
-ip_method = "none"
+[botdetection.ip_limit]
 link_token = false
+filter_link_local = false
+
+[botdetection.ip_lists]
+pass_ip = [
+    "127.0.0.0/8",
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "::1/128"
+]
+block_ip = []
