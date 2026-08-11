@@ -23,12 +23,14 @@ router.post('/', validate(ScreenshotSchema), async (req: Request, res: Response,
 
     await page.goto(targetUrl, { timeout: body.timeout, waitUntil: 'domcontentloaded' });
 
+    await CaptchaSolver.waitForChallenge(page, body.captchaWaitTimeout);
+
     if (body.humanize) {
       await HumanizeUtils.applyHumanBehavior(page);
     }
 
     if (body.solveCaptcha) {
-      await CaptchaSolver.detectAndSolve(page, { solver: body.captchaSolver });
+      await CaptchaSolver.detectAndSolve(page, { solver: body.captchaSolver, waitTimeout: body.captchaWaitTimeout });
     }
 
     if (body.waitFor) {

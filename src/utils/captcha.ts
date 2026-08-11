@@ -10,14 +10,65 @@ export interface CaptchaSolveResult {
 
 export class CaptchaSolver {
   /**
+   * Helper to wait for challenge/interstitial pages (like Cloudflare 'Just a moment...') to clear or stabilize.
+   */
+  public static async waitForChallenge(page: Page, timeoutMs: number = 10000): Promise<void> {
+    try {
+      // Check if page is currently in a known Cloudflare/Akamai/Datadome interstitial state
+      const isInterstitial = await page.evaluate(() => {
+        const title = document.title.toLowerCase();
+        const bodyText = document.body ? document.body.innerText.toLowerCase() : '';
+        return (
+          title.includes('just a moment') ||
+          title.includes('attention required') ||
+          title.includes('ddos protection') ||
+          title.includes('security check') ||
+          bodyText.includes('checking your browser') ||
+          bodyText.includes('enable javascript and cookies to continue') ||
+          bodyText.includes('verify you are human')
+        );
+      });
+
+      if (isInterstitial) {
+        // Wait for title to change or interstitial element to disappear
+        const startTime = Date.now();
+        while (Date.now() - startTime < timeoutMs) {
+          await page.waitForTimeout(1000);
+          const stillInterstitial = await page.evaluate(() => {
+            const title = document.title.toLowerCase();
+            const bodyText = document.body ? document.body.innerText.toLowerCase() : '';
+            return (
+              title.includes('just a moment') ||
+              title.includes('attention required') ||
+              title.includes('ddos protection') ||
+              title.includes('security check') ||
+              bodyText.includes('checking your browser')
+            );
+          });
+          if (!stillInterstitial) {
+            // Extra grace period for DOM render after interstitial resolves
+            await page.waitForTimeout(1500);
+            break;
+          }
+        }
+      }
+    } catch {
+      // Ignore if unmounted or navigation completed mid-check
+    }
+  }
+
+  /**
    * Main method to detect and auto-solve any CAPTCHA challenge present on the page.
    */
   public static async detectAndSolve(
     page: Page,
-    options?: { solver?: 'capsolver' | '2captcha' | 'anticaptcha'; apiKey?: string }
+    options?: { solver?: 'capsolver' | '2captcha' | 'anticaptcha'; apiKey?: string; waitTimeout?: number }
   ): Promise<CaptchaSolveResult> {
     const solverType = options?.solver || env.CAPTCHA_SOLVER;
     const apiKey = options?.apiKey || env.CAPTCHA_API_KEY;
+
+    // First wait for browser verification / Cloudflare interstitial checks to settle
+    await this.waitForChallenge(page, options?.waitTimeout || 10000);
 
     if (!apiKey) {
       return { solved: false, error: 'CAPTCHA API key is not configured' };
@@ -94,6 +145,9 @@ export class CaptchaSolver {
           }
         }
       }, { type: captchaData.type, token });
+
+      // Short wait after token injection for redirect/page update
+      await page.waitForTimeout(2000);
 
       return { solved: true, type: captchaData.type, token };
     } catch (err: any) {

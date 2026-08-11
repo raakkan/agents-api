@@ -6,6 +6,7 @@ export const AntiBotOptionsSchema = z.object({
   humanize: z.boolean().default(false),
   solveCaptcha: z.boolean().default(false),
   captchaSolver: z.enum(['capsolver', '2captcha', 'anticaptcha']).optional(),
+  captchaWaitTimeout: z.number().default(10000),
 });
 
 export const ScrapeSchema = z.object({
