@@ -1,0 +1,8 @@
+[real_ip]
+# Disable real IP requirement for internal network calls
+x_for = 0
+
+[botdetection]
+ip_limit = false
+ip_method = "none"
+link_token = false

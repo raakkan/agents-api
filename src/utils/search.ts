@@ -27,7 +27,13 @@ export async function searchSearXNG(
     searchUrl.searchParams.append('language', lang);
     searchUrl.searchParams.append('categories', categories.join(','));
 
-    const response = await fetch(searchUrl.toString());
+    const response = await fetch(searchUrl.toString(), {
+      headers: {
+        'X-Forwarded-For': '127.0.0.1',
+        'X-Real-IP': '127.0.0.1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      },
+    });
     if (!response.ok) {
       throw new Error(`SearXNG returned ${response.status}`);
     }
