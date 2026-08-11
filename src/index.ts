@@ -49,6 +49,15 @@ app.use(express.static(path.join(__dirname, '../docs')));
 // Central error handler
 app.use(errorHandler);
 
+// Process safety: Prevent uncaught asynchronous CDP / library errors from crashing the server
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Uncaught Exception:', err?.message || err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ Unhandled Rejection:', reason);
+});
+
 if (env.NODE_ENV !== 'test') {
   app.listen(env.PORT, () => {
     console.log(`🚀 Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
@@ -56,4 +65,5 @@ if (env.NODE_ENV !== 'test') {
 }
 
 export default app;
+
 
